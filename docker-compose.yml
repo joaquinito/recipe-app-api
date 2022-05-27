@@ -13,7 +13,7 @@ services:
       - "8000:8000"
     # Map the app directory to the app directory inside the container (this is so the changes done in the code are reflected in the container in real time)
     volumes:
-      - .app/:/app
+      - ./app:/app
     # Command used to run the service
-    command:
+    command: >
       sh -c "python manage.py runserver 0.0.0.0:8000"

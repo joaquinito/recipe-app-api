@@ -1,0 +1,21 @@
+---
+name: Checks # This is the name as it is going to appear on Github Actions
+
+on: [push] # This is the trigger - we want this Github Actions to run when we do a git push
+
+jobs:
+  test-lint: # Defines a new job 
+    name: Test and Lint # Name that will show in the Github Actions interface
+    runs-on: ubuntu-20.04 # We'll use this runner
+    steps:
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1 # Github action used to login to Docker (@ is the version we want to use)
+        with:
+          username: ${{secrets.DOCKERHUB_USER}} 
+          password: ${{secrets.DOCKERHUB_TOKEN}}
+      - name: Checkout
+        uses: actions/checkout@v2 # Github action to checkout the code
+      - name: Test
+        run: docker-compose run --rm app sh -c "python manage.py test"
+      - name: Lint
+        run: docker-compose run --rm app sh -c "flake8"
