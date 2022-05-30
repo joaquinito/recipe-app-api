@@ -14,6 +14,31 @@ services:
     # Map the app directory to the app directory inside the container (this is so the changes done in the code are reflected in the container in real time)
     volumes:
       - ./app:/app
-    # Command used to run the service
+    # Commands used to run the service
     command: >
-      sh -c "python manage.py runserver 0.0.0.0:8000"
+      sh -c "python manage.py wait_for_db && 
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    # Set environment variables that will interact with the db service
+    environment:
+      - DB_HOST=db # Name of the db service
+      - DB_NAME=devdb
+      - DB_USER=devuser
+      - DB_PASS=changeme
+    # Define that the app service depends on the db service, so the db service must start before the app service
+    depends_on:
+      - db
+
+  db:
+    # Use the official Docker Postgres image
+    image: postgres:13-alpine 
+    volumes:
+      - dev-db-data:/var/lib/postgresql/data
+    # Set environment variables that will set the initial database configuration for our new db service (this is just for local development)
+    environment:
+      - POSTGRES_DB=devdb
+      - POSTGRES_USER=devuser
+      - POSTGRES_PASSWORD=changeme
+
+volumes:  
+  dev-db-data: # Will store in the default location of the file system that it does for main volumes
